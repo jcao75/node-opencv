@@ -112,6 +112,7 @@ Matrix::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(constructor, "setWithMask", SetWithMask);
     NODE_SET_PROTOTYPE_METHOD(constructor, "meanWithMask", MeanWithMask);
     NODE_SET_PROTOTYPE_METHOD(constructor, "shift", Shift);
+    NODE_SET_PROTOTYPE_METHOD(constructor, "blobDetect", BlobDetect);
 
 
 	target->Set(String::NewSymbol("Matrix"), m->GetFunction());
@@ -167,6 +168,71 @@ Matrix::Empty(const Arguments& args){
 }
 
 
+
+Handle<Value>
+Matrix::BlobDetect(const Arguments& args){
+  SETUP_FUNCTION(Matrix)
+  // const char      * wndName = "Source image",
+  //                               * wndNameGray = "Gray img", 
+  //                               * wndNameOut = "Out",
+  //                               * filename = "../data/images/eyebrows-smoothed.bmp";
+
+  // cv::Mat src, gray, thresh, binary;
+  // cv::Mat out;
+  // vector<cv::KeyPoint> keyPoints;
+  // vector< vector <cv::Point>> contours;
+  // vector< vector <cv::Point>> approxContours;
+
+  cv::SimpleBlobDetector::Params params;
+  params.minThreshold = 40;
+  params.maxThreshold = 60;
+  params.thresholdStep = 5;
+
+  params.minArea = 100; 
+  params.minConvexity = 0.3;
+  params.minInertiaRatio = 0.01;
+
+  params.maxArea = 8000;
+  params.maxConvexity = 10;
+
+  params.blobColor = 255;
+  params.filterByColor = true;
+
+  params.filterByCircularity = false;
+
+  // src = cv::imread( filename, CV_LOAD_IMAGE_GRAYSCALE );
+  // line( self->mat, cv::Point(0, self->mat.rows-1), cv::Point( self->mat.cols-1, self->mat.rows-1 ), cv::Scalar::all(255) );
+
+  cv::SimpleBlobDetector blobDetector( params );
+  blobDetector.create("SimpleBlob");
+  vector<cv::KeyPoint> keypoints;
+  blobDetector.detect(self->mat, keypoints);
+
+  // extract the x y coordinates of the keypoints: 
+
+  for (int i=0; i<keypoints.size(); i++){
+      float X=keypoints[i].pt.x; 
+      float Y=keypoints[i].pt.y;
+      cout << "X:" << X << ",Y:" << Y << endl;
+  }
+
+  // blobDetector.detectEx( src, keyPoints, contours );
+  // cv::drawKeypoints( src, keyPoints, out, CV_RGB(0,255,0), cv::DrawMatchesFlags::DEFAULT);
+  // approxContours.resize( contours.size() );
+
+  // for( int i = 0; i < contours.size(); ++i )
+  // {
+  //   approxPolyDP( cv::Mat(contours[i]), approxContours[i], 4, 1 );
+  //   drawContours( out, contours, i, CV_RGB(rand()&255, rand()&255, rand()&255) );
+  //   drawContours( out, approxContours, i, CV_RGB(rand()&255, rand()&255, rand()&255) );
+  // }
+  // cout << "Keypoints " << keyPoints.size() << endl;
+
+  // imshow( wndNameOut, out );
+  // waitKey(0);
+
+  return scope.Close(Undefined());
+}
 
 double
 Matrix::DblGet(cv::Mat mat, int i, int j){
