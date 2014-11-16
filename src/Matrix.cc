@@ -67,6 +67,7 @@ Matrix::Init(Handle<Object> target) {
 	NODE_SET_PROTOTYPE_METHOD(constructor, "absDiff", AbsDiff);
 	NODE_SET_PROTOTYPE_METHOD(constructor, "addWeighted", AddWeighted);
 	NODE_SET_PROTOTYPE_METHOD(constructor, "bitwiseXor", BitwiseXor);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "bitwiseOr", BitwiseOr);
 	NODE_SET_PROTOTYPE_METHOD(constructor, "bitwiseNot", BitwiseNot);
   NODE_SET_PROTOTYPE_METHOD(constructor, "bitwiseAnd", BitwiseAnd);
 	NODE_SET_PROTOTYPE_METHOD(constructor, "countNonZero", CountNonZero);
@@ -1116,6 +1117,19 @@ Matrix::AddWeighted(const v8::Arguments& args) {
 	return scope.Close(v8::Null());
 }
 
+Handle<Value>
+Matrix::BitwiseOr(const v8::Arguments& args) {
+  HandleScope scope;
+
+  Matrix *self = ObjectWrap::Unwrap<Matrix>(args.This());
+
+  Matrix *src1 = ObjectWrap::Unwrap<Matrix>(args[0]->ToObject());
+  Matrix *src2 = ObjectWrap::Unwrap<Matrix>(args[1]->ToObject());
+
+  cv::bitwise_or(src1->mat, src2->mat, self->mat);
+
+  return scope.Close(v8::Null());
+}
 Handle<Value>
 Matrix::BitwiseXor(const v8::Arguments& args) {
 	HandleScope scope;
